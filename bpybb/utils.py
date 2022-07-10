@@ -8,6 +8,12 @@ def active_object():
 
 
 def make_active(obj):
+    """
+    Select and make the object active in the scene
+
+    Args:
+        obj: object.
+    """
     bpy.ops.object.select_all(action="DESELECT")
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
@@ -25,11 +31,17 @@ def editmode():
 
 
 def purge_orphans():
+    """
+    Remove all orphan data blocks
+
+    see this from more info:
+    https://youtu.be/3rNqVPtbhzc?t=149
+    """
     if bpy.app.version >= (3, 0, 0):
-        bpy.ops.outliner.orphans_purge(
-            do_local_ids=True, do_linked_ids=True, do_recursive=True
-        )
+        # run this only for Blender versions 3.0 and higher
+        bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)
     else:
+        # run this only for Blender versions lower than 3.0
         # call purge_orphans() recursively until there are no more orphan data blocks to purge
         result = bpy.ops.outliner.orphans_purge()
         if result.pop() != "CANCELLED":
@@ -40,23 +52,34 @@ def clean_scene():
     """
     Removing all of the objects, collection, materials, particles,
     textures, images, curves, meshes, actions, nodes, and worlds from the scene
+
+    Checkout this video explanation with example
+
+    "How to clean the scene with Python in Blender (with examples)"
+    https://youtu.be/3rNqVPtbhzc
     """
+    # make sure the active object is not in Edit Mode
     if bpy.context.active_object and bpy.context.active_object.mode == "EDIT":
         bpy.ops.object.editmode_toggle()
 
+    # make sure non of the objects are hidden from the viewport, selection, or disabled
     for obj in bpy.data.objects:
         obj.hide_set(False)
         obj.hide_select = False
         obj.hide_viewport = False
+
+    # select all the object and delete them (just like pressing A + X + D in the viewport)
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
 
+    # find all the collections and remove them
     collection_names = [col.name for col in bpy.data.collections]
     for name in collection_names:
         bpy.data.collections.remove(bpy.data.collections[name])
 
     # in the case when you modify the world shader
-    world_names = [col.name for col in bpy.data.worlds]
+    # delete and recreate the world object
+    world_names = [world.name for world in bpy.data.worlds]
     for name in world_names:
         bpy.data.worlds.remove(bpy.data.worlds[name])
     # create a new world data block
@@ -64,3 +87,35 @@ def clean_scene():
     bpy.context.scene.world = bpy.data.worlds["World"]
 
     purge_orphans()
+
+
+def render_animation():
+    """
+    Renders the animation in the currently active scene
+    """
+    bpy.ops.render.render(animation=True)
+
+
+def render_image(write_still=False):
+    """
+    Renders an image in the currently active scene at the current frame
+
+    Args:
+        write_still: write the rendered image to disk. Defaults to False.
+    """
+    bpy.ops.render.render(write_still=write_still)
+
+
+def parent(child_obj, parent_obj, keep_transform=False):
+    """
+    Parent the child object to the parent object
+
+    Args:
+        child_obj: child object that will be parented.
+        parent_obj: parent object that will be parented to.
+        keep_transform: keep the transform of the child object. Defaults to False.
+    """
+    make_active(child_obj)
+    child_obj.parent = parent_obj
+    if keep_transform:
+        child_obj.matrix_parent_inverse = parent_obj.matrix_world.inverted()

@@ -2,6 +2,12 @@ import addon_utils
 
 
 def enable_addon(addon_module_name):
+    """
+    Checkout this video explanation with example
+
+    "How to enable add-ons with Python in Blender (with examples)"
+    https://youtu.be/HnrInoBWT6Q
+    """
     loaded_default, loaded_state = addon_utils.check(addon_module_name)
     if not loaded_state:
         addon_utils.enable(addon_module_name)
@@ -47,9 +53,17 @@ def enable_import_images_as_planes():
     enable_addon(addon_module_name="io_import_images_as_planes")
 
 
-def enable_import_images_as_planes():
+def enable_pointcache_pc2():
     """
     enable Pointcache (pc2) addon
     https://docs.blender.org/manual/en/3.0/addons/import_export/pc2.html
     """
     enable_addon(addon_module_name="io_export_pc2")
+
+
+def enable_animation_animall():
+    """
+    enable Animall addon
+    https://docs.blender.org/manual/en/dev/addons/animation/animall.html
+    """
+    enable_addon(addon_module_name="animation_animall")
