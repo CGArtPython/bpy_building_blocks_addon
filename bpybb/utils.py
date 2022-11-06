@@ -55,20 +55,20 @@ def app_version_less_than(major: int, minor: int = 0, subversion: int = 0) -> bo
 
 
 @contextlib.contextmanager
-def editmode():
+def edit_mode():
     """
-    A context manager for toggling the editmode
+    A context manager for toggling the edit_mode
 
     Usage:
-    with editmode():
+    with edit_mode():
         # do mesh editing
     """
-    # enter editmode
+    # enter edit mode
     bpy.ops.object.editmode_toggle()
 
-    yield  # return out of the function in editmode
+    yield  # return out of the function in edit_mode
 
-    # when leaving the context manager scope - exit editmode
+    # when leaving the context manager scope - exit edit_mode
     bpy.ops.object.editmode_toggle()
 
 
@@ -187,6 +187,27 @@ def parent(child_obj, parent_obj, keep_transform=False):
     child_obj.parent = parent_obj
     if keep_transform:
         child_obj.matrix_parent_inverse = parent_obj.matrix_world.inverted()
+
+
+def duplicate_object(obj=None, linked=False):
+    """
+    Duplicate object
+
+    Args:
+        obj: source object that will be duplicated.
+        linked: link duplicated object to target source.
+    """
+    if obj is None:
+        obj = active_object()
+
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+
+    bpy.ops.object.duplicate(linked=linked)
+    duplicate_obj = active_object()
+
+    return duplicate_obj
 
 
 def apply_scale():
