@@ -2,12 +2,31 @@
 This module contains utilities for working with Blender objects.
 """
 
+import math
+
 import bpy
 
 import bpy_types
 
-from bpybb.utils import active_object, make_active
+from bpybb.utils import active_object, make_active, deselect_all_objects
 from bpybb.addon import enable_extra_meshes
+
+
+def join_objects(objects: list[bpy_types.Object]) -> bpy_types.Object:
+    deselect_all_objects()
+
+    for obj in objects:
+        obj.select_set(True)
+
+    bpy.ops.object.join()
+
+    new_obj = active_object()
+
+    return new_obj
+
+
+def rotate_object(axis: int, degrees: float) -> None:
+    bpy.context.active_object.rotation_euler[axis] = math.radians(degrees)
 
 
 def apply_location():

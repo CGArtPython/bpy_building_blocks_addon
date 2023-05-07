@@ -29,9 +29,17 @@ def make_active(obj):
     Args:
         obj: object.
     """
-    bpy.ops.object.select_all(action="DESELECT")
+    deselect_all_objects()
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
+
+
+def deselect_all_objects():
+    """
+    Similar to bpy.ops.object.select_all(action="DESELECT")
+    """
+    for obj in bpy.data.objects:
+        obj.select_set(False)
 
 
 def render_animation():
@@ -157,6 +165,13 @@ def clean_scene_experimental():
     purge_orphans()
 
 
+def remove_libraries() -> None:
+    """
+    Remove libraries that were linked into the Blend file
+    """
+    bpy.data.batch_remove(bpy.data.libraries)
+
+
 def render_animation():
     """
     Renders the animation in the currently active scene
@@ -200,7 +215,7 @@ def duplicate_object(obj=None, linked=False):
     if obj is None:
         obj = active_object()
 
-    bpy.ops.object.select_all(action="DESELECT")
+    deselect_all_objects()
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
 
